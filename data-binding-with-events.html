@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="zooduck">
+    <title>Data Binding With Events</title>
+    <style>
+        body, input, button {
+            font-size: 22px;
+        }
+
+        [key] {
+            background-color: cyan;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>
+        Why building <span key="titleSubject">Web Applications</span>
+        for browsers that do not support <span key="titleSubject">Web Applications</span>
+        is bad for everyone.
+    </h1>
+
+    <blockquote>
+        <q>
+            I want to be rich and I want lots of <span key="resource">money</span>,
+            I don't care about clever I don't care about funny
+        </q>
+        <span> - Lily Allen, The Fear</span>
+    </blockquote>
+
+    <form onsubmit="setLocalStorage()">
+        <!-- [2] -->
+        <label for="titleSubject">Title Subject</label>
+        <input id="titleSubject" placeholder="Type something..." autocomplete="off" oninput="onInputHandler(event)" />
+
+        <!-- [2] -->
+        <label for="resource">Resource</label>
+        <input id="resource" placeholder="Type something..." autocomplete="off" oninput="onInputHandler(event)" />
+
+        <!-- [4] -->
+        <button type="submit">Save</button>
+
+        <!-- [5] -->
+        <button type="button" onClick="clearLocalStorage()">Reset</button>
+    </form>
+
+    <script>
+        // [1] CREATE APP DATA
+        const appData = {
+            titleSubject: localStorage.getItem('titleSubject') || 'Web Applications',
+            resource: localStorage.getItem('resource') || 'money'
+        };
+
+        // [2] LISTEN FOR USER INPUT AND DISPATCH NEW CUSTOM EVENT
+        const onInputHandler = (evt) => {
+            const { value: inputValue, id: appDataKey } = evt.target; // <input id="titleSubject"... />
+            const eventName = `${appDataKey}:change`; // titleSubject:change
+
+            appData[appDataKey] = inputValue;
+
+            const customEvent = new CustomEvent(eventName, { detail: { value: inputValue } });
+
+            window.dispatchEvent(customEvent);
+        }
+
+        // [3] MANIPULATE DOM
+        Object.keys(appData).forEach((appDataKey) => { // appDataKey = titleSubject
+            // [3.1] INITIALISE DOM
+            const elementsToSet = document.querySelectorAll('[key]');
+
+            elementsToSet.forEach((elementToSet) => {
+                // elementToSet = <span key="titleSubject">Web Applications</span>
+                const key = elementToSet.getAttribute('key'); // titleSubject
+                elementToSet.innerHTML = appData[key];
+            });
+
+            // [3.2] UPDATE DOM
+            const eventName = `${appDataKey}:change`; // titleSubject:change
+
+            window.addEventListener(eventName, (event) => {
+                const selector = `[key=${appDataKey}]`; // [key=titleSubject]
+                const elementsToUpdate = document.querySelectorAll(selector);
+                const newValue = event.detail.value;
+                elementsToUpdate.forEach((elementToUpdate) => {
+                    elementToUpdate.innerHTML = newValue;
+                });
+            });
+        });
+
+        // [4] SAVE DATA
+        const setLocalStorage = () => {
+            // Prevent default browser behaviour (page reload) for
+            // when a submit <button> inside a <form> is clicked
+            event.preventDefault();
+
+            localStorage.setItem('titleSubject', appData.titleSubject);
+            localStorage.setItem('resource', appData.resource);
+        };
+
+        // [5] CLEAR DATA
+        const clearLocalStorage = () => {
+            localStorage.removeItem('titleSubject');
+            localStorage.removeItem('resource');
+
+            location.reload();
+        };
+    </script>
+</body>
+</html>

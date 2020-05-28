@@ -27,7 +27,7 @@
     <blockquote>
         <q>
             I want to be rich and I want lots of <span key="resource">money</span>,
-            I don't care about clever I don't care about funny
+            I don't care about clever I don't care about funny.
         </q>
         <span> - Lily Allen, The Fear</span>
     </blockquote>
@@ -57,7 +57,7 @@
 
         // [2] LISTEN FOR USER INPUT AND DISPATCH NEW CUSTOM EVENT
         const onInputHandler = (evt) => {
-            const { value: inputValue, id: appDataKey } = evt.target; // <input id="titleSubject"... />
+            const { value: inputValue, id: appDataKey } = evt.target; // evt.target: <input id="titleSubject"... />
             const eventName = `${appDataKey}:change`; // titleSubject:change
 
             appData[appDataKey] = inputValue;
@@ -65,7 +65,7 @@
             const customEvent = new CustomEvent(eventName, { detail: { value: inputValue } });
 
             window.dispatchEvent(customEvent);
-        }
+        };
 
         // [3] MANIPULATE DOM
         Object.keys(appData).forEach((appDataKey) => { // appDataKey = titleSubject
@@ -73,7 +73,7 @@
             const elementsToSet = document.querySelectorAll('[key]');
 
             elementsToSet.forEach((elementToSet) => {
-                // elementToSet = <span key="titleSubject">Web Applications</span>
+                // elementToSet: <span key="titleSubject">Web Applications</span>
                 const key = elementToSet.getAttribute('key'); // titleSubject
                 elementToSet.innerHTML = appData[key];
             });
@@ -82,9 +82,10 @@
             const eventName = `${appDataKey}:change`; // titleSubject:change
 
             window.addEventListener(eventName, (event) => {
+                const newValue = event.detail.value;
                 const selector = `[key=${appDataKey}]`; // [key=titleSubject]
                 const elementsToUpdate = document.querySelectorAll(selector);
-                const newValue = event.detail.value;
+
                 elementsToUpdate.forEach((elementToUpdate) => {
                     elementToUpdate.innerHTML = newValue;
                 });
@@ -99,6 +100,8 @@
 
             localStorage.setItem('titleSubject', appData.titleSubject);
             localStorage.setItem('resource', appData.resource);
+
+            location.reload();
         };
 
         // [5] CLEAR DATA
